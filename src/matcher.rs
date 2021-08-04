@@ -13,7 +13,7 @@ impl Matcher {
     pub fn matches(&self, s: &Value) -> bool {
         self.conditions
             .iter()
-            .fold(false, |last, condition| match condition.check(s) {
+            .fold(true, |last, condition| match condition.check(s) {
                 Some(curr) => curr,
                 None => last,
             })

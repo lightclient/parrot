@@ -16,8 +16,15 @@ impl FromStr for Condition {
         let f = match s {
             "deny_info" => is_priority_info(false),
             "reorg" => contains_reorg(3, true),
-            "deny_snap" => contains_string("snap".into(), false),
-            _ => unimplemented!(),
+            _ => {
+                if let Some(val) = s.strip_prefix("deny_") {
+                    contains_string(val.to_string(), false)
+                } else if let Some(val) = s.strip_prefix("allow_") {
+                    contains_string(val.to_string(), true)
+                } else {
+                    unimplemented!()
+                }
+            }
         };
         Ok(f)
     }

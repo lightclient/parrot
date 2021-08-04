@@ -10,14 +10,17 @@ pub fn handle_log(s: &str, m: &Matcher) -> Result<Option<String>, Box<dyn Error>
 
     match serde_json::from_str::<Value>(&log.msg) {
         Ok(v) => match m.matches(&v) {
-            true => Ok(Some(format_alert(v))),
+            true => Ok(Some(format_alert(
+                log.appname.unwrap_or("unknown".into()),
+                v,
+            ))),
             false => Ok(None),
         },
         Err(e) => Ok(Some(format!("parse error: {}\n\n{}", e, s).to_string())),
     }
 }
 
-fn format_alert(v: Value) -> String {
+fn format_alert(name: &str, v: Value) -> String {
     let lvl = Severity::from_str(v["lvl"].as_str().unwrap()).unwrap();
     let msg = v["msg"].as_str().unwrap();
 
@@ -31,5 +34,5 @@ fn format_alert(v: Value) -> String {
         }
     }
 
-    format!("{}: {}\n\n{}", lvl, msg, extra)
+    format!("{}[{}]: {}\n\n{}", name, lvl, msg, extra)
 }
